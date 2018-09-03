@@ -28,10 +28,6 @@ func extractData(resultSplit []string) map[string]string {
 
 func multiPing(sleep *int, ping *string, target string) {
 
-	// TODO: Determine why one goroutine exiting fails other goroutines - maybe because I am not handling the error correctly?
-	// TODO: Ensure utility does not exit when ping fails
-	// TODO: Provide useful error message when target doesn't respond
-
 	var sumAverage float64
 	var sumAverageLoss float64
 	var counter int
@@ -52,7 +48,7 @@ func multiPing(sleep *int, ping *string, target string) {
 		sumAverageLoss += packetLoss
 		counter++
 
-		fmt.Printf("Target: %s\t\tCount: %d\tPackets Lost: %.1f%%\t Average: %.3f\t Total Average: %.3f\t\tTotal Loss: %.2f%%\n",
+		fmt.Printf("Target: %s\t\tCount: %d\tPackets Lost: %.2f%%\t Average: %.3f\t Total Average: %.3f\t\tTotal Loss: %.2f%%\n",
 			target, counter, packetLoss, averagePing, sumAverage/float64(counter), sumAverageLoss/float64(counter))
 
 		time.Sleep(time.Second * time.Duration(*sleep))
@@ -67,7 +63,6 @@ func main() {
 		log.Fatal("Not able to find ping")
 	}
 
-	// TODO: Add more flags, such as the -c, -w parameters from PING
 	// Define flags
 	maxWaitPtr := flag.Int("sleep", 1, "the maximum time in seconds to sleep")
 	flag.Parse()
@@ -84,6 +79,7 @@ func main() {
 
 	fmt.Println("Hit Enter to end execution")
 	defer fmt.Println("test")
+
 	var input string
 	fmt.Scanln(&input)
 }
