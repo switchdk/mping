@@ -14,3 +14,10 @@ with Go installed and working
 * `mping` will automatically ping [Quad9](https://quad9.com/)
 * `mping <hostname1> <hostname2> ... <hostnameN>`
 * `mping -sleep <seconds> <hostname1> <hostname2> ... <hostnameN>` where `sleep` is the wait time between pings
+
+# TODO
+- [ ] Determine why one goroutine exiting fails other goroutines, maybe because I am not handling the error correctly?
+- [ ] Ensure utility does not exit when ping fails
+- [ ] Provide useful error message when target doesn't respond
+- [ ] Add more flags, such as the -c, -w parameters from PING
+- [ ] Add tests
