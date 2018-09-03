@@ -11,33 +11,50 @@ import (
 	"time"
 )
 
+func extractData(resultSplit []string) map[string]string {
+
+	outputData := make(map[string]string)
+
+	for i, rs := range resultSplit {
+		switch rs {
+		case "loss,":
+			outputData["loss"] = resultSplit[i-2]
+		case "min/avg/max/mdev":
+			outputData["avg"] = resultSplit[i+2]
+		}
+	}
+	return outputData
+}
+
 func multiPing(sleep *int, ping *string, target string) {
 
-	// TODO: Use map instead of slice for Stdout
-	// TODO: Determine why one goroutine exiting fails other goroutines
+	// TODO: Determine why one goroutine exiting fails other goroutines - maybe because I am not handling the error correctly?
 	// TODO: Ensure utility does not exit when ping fails
+	// TODO: Provide useful error message when target doesn't respond
 
 	var sumAverage float64
 	var sumAverageLoss float64
 	var counter int
+	var out bytes.Buffer
 
 	for true {
 		cmd := exec.Command(*ping, "-c 1", target)
-		var out bytes.Buffer
 		cmd.Stdout = &out
 		err := cmd.Run()
 		if err != nil {
 			log.Fatal(err)
 		}
-		result := out.String()
-		resultSplit := strings.Fields(result)
-		packetLoss, _ := strconv.ParseFloat(strings.Replace(resultSplit[25], "%", "", -1), 64)
-		averagePing, _ := strconv.ParseFloat(strings.Split(resultSplit[33], "/")[2], 64)
+
+		outputData := extractData(strings.Fields(out.String()))
+		packetLoss, _ := strconv.ParseFloat(strings.Replace(outputData["loss"], "%", "", -1), 64)
+		averagePing, _ := strconv.ParseFloat(strings.Split(outputData["avg"], "/")[2], 64)
 		sumAverage += averagePing
 		sumAverageLoss += packetLoss
 		counter++
+
 		fmt.Printf("Target: %s\t\tCount: %d\tPackets Lost: %.1f%%\t Average: %.3f\t Total Average: %.3f\t\tTotal Loss: %.2f%%\n",
 			target, counter, packetLoss, averagePing, sumAverage/float64(counter), sumAverageLoss/float64(counter))
+
 		time.Sleep(time.Second * time.Duration(*sleep))
 	}
 }
